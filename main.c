@@ -26,101 +26,6 @@ void pos(struct Shop *ptr, struct Shop *ptr2);
 void inventory(struct Shop *ptr, struct Shop *ptr2);
 void viewsummary(struct Shop *ptr, struct Shop *ptr2);
 
-int importStockData(struct Shop *ptr)
-{
-    // read stock.csv => run on start
-    FILE *file;
-    file = fopen("stock.csv", "r");
-    if (file == NULL)
-    {
-        printf("Import Error: opening stock.csv file. \n");
-        return 1;
-    }
-    char tempLine[1000];
-    char *sp;
-    int records = 0;
-
-    while (fgets(tempLine, 1000, file) != NULL)
-    {
-        sp = strtok(tempLine, ",");
-        ptr[records].id = atoi(sp);
-
-        sp = strtok(NULL, ",");
-        strcpy(ptr[records].name, sp);
-
-        sp = strtok(NULL, ",");
-        ptr[records].price = atof(sp);
-
-        sp = strtok(NULL, ",");
-        ptr[records].cost = atof(sp);
-
-        sp = strtok(NULL, ",");
-        ptr[records].quantity = atoi(sp);
-
-        sp = strtok(NULL, ",");
-        strcpy(ptr[records].description, sp);
-
-        sp = strtok(NULL, ",");
-        ptr[records].minimum_sale_quantity = atoi(sp);
-
-        sp = strtok(NULL, ",");
-        ptr[records].sale_quantity = atoi(sp);
-
-        sp = strtok(NULL, ",");
-        ptr[records].lost_quantity = atoi(sp);
-
-        sp = strtok(NULL, ",");
-        strcpy(ptr[records].date, sp);
-
-        records++;
-    }
-    fclose(file);
-
-    printf("\nStock: %d records read.\n", records);
-    return 0;
-}
-
-int importTransactionData(struct Shop *ptr)
-{
-    FILE *files;
-    files = fopen("transaction.csv", "r");
-    if (files == NULL)
-    {
-        printf("Import Error: opening transaction.csv file. \n");
-        return 1;
-    }
-    char tempLine[500];
-    char *sp;
-    int records = 0;
-    while (fgets(tempLine, 500, files) != NULL)
-    {
-        sp = strtok(tempLine, ",");
-        ptr[records].id = atoi(sp);
-
-        sp = strtok(NULL, ",");
-        strcpy(ptr[records].name, sp);
-
-        sp = strtok(NULL, ",");
-        ptr[records].price = atof(sp);
-
-        sp = strtok(NULL, ",");
-        ptr[records].cost = atof(sp);
-
-        sp = strtok(NULL, ",");
-        ptr[records].quantity = atoi(sp);
-
-        sp = strtok(NULL, ",");
-        ptr[records].is_lost = atoi(sp);
-
-        sp = strtok(NULL, ",");
-        strcpy(ptr[records].date, sp);
-        records++;
-    }
-    fclose(files);
-    printf("Transaction: %d records read.\n", records);
-    return 0;
-}
-
 void menuSelection(int *mode, struct Shop *ptr, struct Shop *ptr2)
 {
     printf("\n****************************\n");
@@ -181,7 +86,7 @@ void inventory(struct Shop *ptr, struct Shop *ptr2)
         // Create a product
         for (i = 0; i < ALLPRODUCT; i++)
         { // check until the g one or new one
-            if (strcmp(ptr[i].name,"DELETED")==0)
+            if (strcmp(ptr[i].name, "DELETED") == 0)
             {
                 break;
             }
@@ -263,7 +168,7 @@ void inventory(struct Shop *ptr, struct Shop *ptr2)
                 printf("Enter ID: ");
                 int search_id = 0;
                 scanf("%d", &search_id);
-                if (strcmp(ptr[search_id].name,"DELETED") == 0)
+                if (strcmp(ptr[search_id].name, "DELETED") == 0)
                 {
                     printf("\nThis product ID does not exist\n\n");
                 }
@@ -344,7 +249,7 @@ void inventory(struct Shop *ptr, struct Shop *ptr2)
                 printf("Enter ID: ");
                 int search_id = 0;
                 scanf("%d", &search_id);
-                if (strcmp(ptr[search_id].name,"DELETED") == 0)
+                if (strcmp(ptr[search_id].name, "DELETED") == 0)
                 {
                     printf("\nThis product ID does not exist\n\n");
                 }
@@ -472,7 +377,7 @@ void inventory(struct Shop *ptr, struct Shop *ptr2)
                 printf("Enter ID: ");
                 int search_id = 0;
                 scanf("%d", &search_id);
-                if (strcmp(ptr[search_id].name,"DELETED") == 0)
+                if (strcmp(ptr[search_id].name, "DELETED") == 0)
                 {
                     printf("\nThis product ID does not exist\n\n");
                 }
@@ -503,15 +408,15 @@ void inventory(struct Shop *ptr, struct Shop *ptr2)
                         switch (temp)
                         {
                         case 0:
-                            strcpy(ptr[search_id].name,"DELETED");
+                            strcpy(ptr[search_id].name, "DELETED");
                             ptr[search_id].price = 0;
                             ptr[search_id].cost = 0;
                             ptr[search_id].quantity = 0;
-                            strcpy(ptr[search_id].description,"DELETED");
+                            strcpy(ptr[search_id].description, "DELETED");
                             ptr[search_id].minimum_sale_quantity = 0;
                             ptr[search_id].sale_quantity = 0;
                             ptr[search_id].lost_quantity = 0;
-                            strcpy(ptr[search_id].date,"DELETED");
+                            strcpy(ptr[search_id].date, "DELETED");
                             printf("\nThis product is successfully deleted\n\n");
                             temp = 1;
                         }
@@ -567,15 +472,15 @@ void inventory(struct Shop *ptr, struct Shop *ptr2)
                         switch (temp)
                         {
                         case 0:
-                            strcpy(ptr[element].name,"DELETED");
+                            strcpy(ptr[element].name, "DELETED");
                             ptr[element].price = 0;
                             ptr[element].cost = 0;
                             ptr[element].quantity = 0;
-                            strcpy(ptr[element].description,"DELETED");
+                            strcpy(ptr[element].description, "DELETED");
                             ptr[element].minimum_sale_quantity = 0;
                             ptr[element].sale_quantity = 0;
                             ptr[element].lost_quantity = 0;
-                            strcpy(ptr[element].date,"DELETED");
+                            strcpy(ptr[element].date, "DELETED");
                             printf("\nThis product is successfully deleted\n\n");
                             temp = 1;
                         }
@@ -625,18 +530,18 @@ void pos(struct Shop *ptr, struct Shop *ptr2)
 
         for (i = 0; i < ALLPRODUCT; i++)
         { // check until the g one or new one
-            if (strcmp(ptr[i].name, ptr[id].name)==0)
+            if (strcmp(ptr[i].name, ptr[id].name) == 0)
             {
                 break;
             }
         }
-        //update in struct array
+        // update in struct array
         ptr[i].quantity -= qty;
         ptr[i].sale_quantity += qty;
-        //update in stock.csv
+        // update in stock.csv
         ExportStockFile(ptr);
         // write on transaction.csv
-        ExportTransactionFile(ptr, id, qty, 0,asctime(localtime(&t)));
+        ExportTransactionFile(ptr, id, qty, 0, asctime(localtime(&t)));
 
         printf("\n=======Summary=======\n");
         printf("Name: %s\n", ptr[id].name);
@@ -648,7 +553,7 @@ void pos(struct Shop *ptr, struct Shop *ptr2)
         printf("=====================\n\n");
         id = 0;
         qty = 0;
-        i=0;
+        i = 0;
         pos(ptr, ptr2);
         break;
     case 2:
@@ -660,18 +565,18 @@ void pos(struct Shop *ptr, struct Shop *ptr2)
 
         for (i = 0; i < ALLPRODUCT; i++)
         { // check until the g one or new one
-            if (strcmp(ptr[i].name, ptr[id].name)==0)
+            if (strcmp(ptr[i].name, ptr[id].name) == 0)
             {
                 break;
             }
         }
-        //update in struct array
+        // update in struct array
         ptr[i].quantity -= qty;
         ptr[i].lost_quantity += qty;
-        //update in stock.csv
+        // update in stock.csv
         ExportStockFile(ptr);
         // write on transaction
-        ExportTransactionFile(ptr, id, qty, 1,asctime(localtime(&t)));
+        ExportTransactionFile(ptr, id, qty, 1, asctime(localtime(&t)));
 
         printf("\n=======Summary=======\n");
         printf("Name: %s\n", ptr[id].name);
@@ -690,7 +595,6 @@ void pos(struct Shop *ptr, struct Shop *ptr2)
         pos(ptr, ptr2);
     }
 }
-
 
 void viewsummary(struct Shop *ptr, struct Shop *ptr2)
 {
@@ -757,7 +661,6 @@ void viewsummary(struct Shop *ptr, struct Shop *ptr2)
         viewsummary(ptr, ptr2);
     }
 }
-
 
 int main(void)
 {

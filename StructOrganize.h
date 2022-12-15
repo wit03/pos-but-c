@@ -18,5 +18,7 @@ struct Shop
 
 int ExportStockFile(struct Shop *ptr);   
 int ExportTransactionFile(struct Shop *ptr, int id, int qty, int is_lost, char date[50]);
+int importStockData(struct Shop *ptr);
+int importTransactionData(struct Shop *ptr);
 
 #endif // FOO_H_
