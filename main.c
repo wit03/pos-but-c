@@ -6,6 +6,8 @@
 
 int mainMode = 0;
 int ALLPRODUCT = 50;
+int ALLTRANSACTION = 0;
+
 int flag;
 int check;
 int element;
@@ -25,18 +27,19 @@ struct tm *info;
 void pos(struct Shop *ptr, struct Shop *ptr2);
 void inventory(struct Shop *ptr, struct Shop *ptr2);
 void viewsummary(struct Shop *ptr, struct Shop *ptr2);
+void music(struct Shop *ptr, struct Shop *ptr2);
 
 void menuSelection(int *mode, struct Shop *ptr, struct Shop *ptr2)
 {
-    printf("\n****************************\n");
-    printf("*      Select a tools:     *\n");
-    printf("*                          *\n");
-    printf("*  1. Inventory Manager    *\n");
-    printf("*  2. Accounting System    *\n");
-    printf("*  3. POS System           *\n");
-    printf("*  4. Music Player         *\n");
-    printf("*                          *\n");
-    printf("****************************\n");
+    printf("\n***********************************\n");
+    printf("*           Select a tools:         *\n");
+    printf("*                                   *\n");
+    printf("*  1. Inventory Manager             *\n");
+    printf("*  2. Accounting System             *\n");
+    printf("*  3. POS System                    *\n");
+    printf("*  4. Music Player (Windows only)   *\n");
+    printf("*                                   *\n");
+    printf("*************************************\n");
     printf("Select: ");
     scanf("%d", mode);
 
@@ -56,6 +59,7 @@ void menuSelection(int *mode, struct Shop *ptr, struct Shop *ptr2)
         break;
     case 4:
         printf("Selected: 4. Music Player\n\n");
+        music(ptr, ptr2);
         break;
     default:
         menuSelection(mode, ptr, ptr2);
@@ -535,13 +539,15 @@ void pos(struct Shop *ptr, struct Shop *ptr2)
                 break;
             }
         }
+        ALLTRANSACTION++;
         // update in struct array
         ptr[i].quantity -= qty;
         ptr[i].sale_quantity += qty;
         // update in stock.csv
         ExportStockFile(ptr);
         // write on transaction.csv
-        ExportTransactionFile(ptr, id, qty, 0, asctime(localtime(&t)));
+        info = localtime(&t);
+        ExportTransactionFile(ptr, id, qty, 0, info->tm_yday);
 
         printf("\n=======Summary=======\n");
         printf("Name: %s\n", ptr[id].name);
@@ -570,13 +576,15 @@ void pos(struct Shop *ptr, struct Shop *ptr2)
                 break;
             }
         }
+        ALLTRANSACTION++;
         // update in struct array
         ptr[i].quantity -= qty;
         ptr[i].lost_quantity += qty;
         // update in stock.csv
         ExportStockFile(ptr);
         // write on transaction
-        ExportTransactionFile(ptr, id, qty, 1, asctime(localtime(&t)));
+        info = localtime(&t);
+        ExportTransactionFile(ptr, id, qty, 1, info->tm_yday);
 
         printf("\n=======Summary=======\n");
         printf("Name: %s\n", ptr[id].name);
@@ -598,6 +606,11 @@ void pos(struct Shop *ptr, struct Shop *ptr2)
 
 void viewsummary(struct Shop *ptr, struct Shop *ptr2)
 {
+    float totalSaleSummary = 0;
+    float costOfTotalSale = 0;
+    float costOfTotalLost = 0;
+    float profit = 0;
+
     int subMode = -1;
     printf("\n************************************\n");
     printf("*     Select to View:              *\n");
@@ -617,42 +630,100 @@ void viewsummary(struct Shop *ptr, struct Shop *ptr2)
         menuSelection(&mainMode, ptr, ptr2);
         break;
     case 1:
+        info = localtime(&t);
+        for (int i = 0; i < ALLTRANSACTION; i++)
+        {
+            if (ptr2[i].selldays == info->tm_yday)
+            {
+                totalSaleSummary = totalSaleSummary + (ptr2[i].price * ptr2[i].quantity);
+                if (ptr2[i].is_lost == 0)
+                {
+                    costOfTotalSale = costOfTotalSale + (ptr2[i].cost * ptr2[i].quantity);
+                }
+                else
+                {
+                    costOfTotalLost = costOfTotalLost + (ptr2[i].cost * ptr2[i].quantity);
+                }
+            }
+        }
+
         printf("Selected: 1. View Day Summary\n");
         printf("\n************************************\n");
-        printf("*     Day Summary:                 *\n");
-        printf("*                                  *\n");
-        printf("*  Total Sell:                     *\n");
-        printf("*  Cost of Total Sell:             *\n");
-        printf("*  Cost of Loss and Broken:        *\n");
-        printf("*  Profit of Total Sell:           *\n");
-        printf("*                                  *\n");
+        printf("            Day Summary:          \n");
+        printf("                                  \n");
+        printf("  Total Sell: %.2f                \n", totalSaleSummary);
+        printf("  Cost of Total Sell: %.2f        \n", costOfTotalSale);
+        printf("  Cost of Loss and Broken: %.2f   \n", costOfTotalLost);
+        printf("  Profit of Total Sell: %.2f      \n", totalSaleSummary - costOfTotalLost - costOfTotalSale);
+        printf("                                  \n");
         printf("************************************\n");
+        totalSaleSummary = 0;
+        costOfTotalSale = 0;
+        costOfTotalLost = 0;
         viewsummary(ptr, ptr2);
         break;
     case 2:
+        info = localtime(&t);
+        for (int i = 0; i < ALLTRANSACTION; i++)
+        {
+            if (ptr2[i].selldays >= info->tm_yday - 7 && ptr2[i].selldays <= info->tm_yday)
+            {
+                totalSaleSummary += (ptr2[i].price * ptr2[i].quantity);
+                if (ptr2[i].is_lost == 0)
+                {
+                    costOfTotalSale += (ptr2[i].cost * ptr2[i].quantity);
+                }
+                else
+                {
+                    costOfTotalLost += (ptr2[i].cost * ptr2[i].quantity);
+                }
+            }
+        }
         printf("Selected: 2. View Week Summary\n");
         printf("\n************************************\n");
-        printf("     Week Summary:                \n");
+        printf("           Week Summary:          \n");
         printf("                                  \n");
-        printf("  Total Sell:                     \n");
-        printf("  Cost of Total Sell:             \n");
-        printf("  Cost of Loss and Broken:        \n");
-        printf("  Profit of Total Sell:           \n");
+        printf("  Total Sell: %.2f                \n", totalSaleSummary);
+        printf("  Cost of Total Sell: %.2f        \n", costOfTotalSale);
+        printf("  Cost of Loss and Broken: %.2f   \n", costOfTotalLost);
+        printf("  Profit of Total Sell: %.2f      \n", totalSaleSummary - costOfTotalLost - costOfTotalSale);
         printf("                                  \n");
         printf("************************************\n");
+        totalSaleSummary = 0;
+        costOfTotalSale = 0;
+        costOfTotalLost = 0;
         viewsummary(ptr, ptr2);
         break;
     case 3:
+        info = localtime(&t);
+        for (int i = 0; i < ALLTRANSACTION; i++)
+        {
+            if (ptr2[i].selldays >= info->tm_yday - 7 && ptr2[i].selldays <= info->tm_yday)
+            {
+                totalSaleSummary += (ptr2[i].price * ptr2[i].quantity);
+                if (ptr2[i].is_lost == 0)
+                {
+                    costOfTotalSale += (ptr2[i].cost * ptr2[i].quantity);
+                }
+                else
+                {
+                    costOfTotalLost += (ptr2[i].cost * ptr2[i].quantity);
+                }
+            }
+        }
         printf("Selected: 3. View Month Summary\n");
         printf("\n************************************\n");
-        printf("     Month Summary:               \n");
+        printf("          Month Summary:          \n");
         printf("                                  \n");
-        printf("  Total Sell:                     \n");
-        printf("  Cost of Total Sell:             \n");
-        printf("  Cost of Loss and Broken:        \n");
-        printf("  Profit of Total Sell:           \n");
+        printf("  Total Sell: %.2f                \n", totalSaleSummary);
+        printf("  Cost of Total Sell: %.2f        \n", costOfTotalSale);
+        printf("  Cost of Loss and Broken: %.2f   \n", costOfTotalLost);
+        printf("  Profit of Total Sell: %.2f      \n", totalSaleSummary - costOfTotalLost - costOfTotalSale);
         printf("                                  \n");
         printf("************************************\n");
+        totalSaleSummary = 0;
+        costOfTotalSale = 0;
+        costOfTotalLost = 0;
         viewsummary(ptr, ptr2);
         break;
     default:
@@ -662,6 +733,40 @@ void viewsummary(struct Shop *ptr, struct Shop *ptr2)
     }
 }
 
+void music(struct Shop *ptr, struct Shop *ptr2){
+    int n;
+    printf("Choose your song\n1.QLER - Jeep\n2.Blackbeans - Dance with me\n3.Landokmai - Summertime\n4.Rick Astley - Never Gonna Give You Up\n5.yuji - Old Love\n");
+    printf("6.SLAPKISS - My Favorite Ex\n7.The Weeknd - Die For You\n8.Safeplanet - With You\n9.Safeplanet - Carry\n10.Newery - Fall in love\n");
+    do{
+        printf("If you want to exit please type 11\nPlease enter number : ");
+        scanf("%d",&n);
+        printf("\n");
+        switch(n){
+            case 1:system("START https://www.youtube.com/watch?v=pk4q4-U891E");
+                    break;
+            case 2:system("START https://www.youtube.com/watch?v=10GeHGvHUsA");
+                    break;
+            case 3:system("START https://www.youtube.com/watch?v=6234mV5dsl4");
+                    break;
+            case 4:system("START https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+                    break;
+            case 5:system("START https://www.youtube.com/watch?v=5YkYwiSJKDI");
+                    break;
+            case 6:system("START https://www.youtube.com/watch?v=FT9yCalL10k");
+                    break;
+            case 7:system("START https://www.youtube.com/watch?v=QLCpqdqeoII");
+                    break;
+            case 8:system("START https://www.youtube.com/watch?v=4xvSFYbVa0U");
+                    break;
+            case 9:system("START https://www.youtube.com/watch?v=DJ-t5-CRSZY");
+                    break;
+            case 10:system("START https://www.youtube.com/watch?v=CSZozBW7xMI");
+                    break;
+        }
+    }while(n!=11);
+    menuSelection(&mainMode, ptr, ptr2);
+}
+
 int main(void)
 {
     struct Shop stock[ALLPRODUCT];
@@ -669,7 +774,7 @@ int main(void)
     printf("Welcome to POS System\n");
     t = time(NULL);
     importStockData(stock);
-    importTransactionData(transaction);
+    importTransactionData(transaction, &ALLTRANSACTION);
     menuSelection(&mainMode, stock, transaction);
 
     return 0;

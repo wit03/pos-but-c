@@ -14,11 +14,12 @@ struct Shop
     int lost_quantity;
     int is_lost;
     char date[50];
+    int selldays;
 };
 
 int ExportStockFile(struct Shop *ptr);   
-int ExportTransactionFile(struct Shop *ptr, int id, int qty, int is_lost, char date[50]);
+int ExportTransactionFile(struct Shop *ptr, int id, int qty, int is_lost, int selldate);
 int importStockData(struct Shop *ptr);
-int importTransactionData(struct Shop *ptr);
+int importTransactionData(struct Shop *ptr, int *transaction);
 
 #endif // FOO_H_

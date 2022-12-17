@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "StructOrganize.h"
 
 int ExportStockFile(struct Shop *ptr)
@@ -40,7 +41,7 @@ int ExportStockFile(struct Shop *ptr)
     return 0;
 }
 
-int ExportTransactionFile(struct Shop *ptr, int id, int qty, int is_lost, char date[50])
+int ExportTransactionFile(struct Shop *ptr, int id, int qty, int is_lost, int selldate)
 {
     FILE *file;
     file = fopen("transaction.csv", "a");
@@ -49,7 +50,7 @@ int ExportTransactionFile(struct Shop *ptr, int id, int qty, int is_lost, char d
     {
         printf("\nError openning transaction.csv");
     }
-    fprintf(file, "%d,%s,%f,%f,%d,%d,%s", id, ptr[id].name, ptr[id].price, ptr[id].cost, qty, is_lost, date);
+    fprintf(file, "%d,%s,%f,%f,%d,%d,%d\n", id, ptr[id].name, ptr[id].price, ptr[id].cost, qty, is_lost, selldate);
     if (ferror(file))
     {
         printf("\nError writing to file\n");
@@ -116,7 +117,7 @@ int importStockData(struct Shop *ptr)
     return 0;
 }
 
-int importTransactionData(struct Shop *ptr)
+int importTransactionData(struct Shop *ptr, int *transaction)
 {
     FILE *file;
     file = fopen("transaction.csv", "r");
@@ -149,10 +150,12 @@ int importTransactionData(struct Shop *ptr)
         ptr[records].is_lost = atoi(sp);
 
         sp = strtok(NULL, ",");
-        strcpy(ptr[records].date, sp);
+        ptr[records].selldays = atoi(sp);
+
         records++;
     }
     fclose(file);
+    *transaction = records;
     printf("Transaction: %d records read.\n", records);
     return 0;
 }
