@@ -698,7 +698,7 @@ void viewsummary(struct Shop *ptr, struct Shop *ptr2)
         info = localtime(&t);
         for (int i = 0; i < ALLTRANSACTION; i++)
         {
-            if (ptr2[i].selldays >= info->tm_yday - 7 && ptr2[i].selldays <= info->tm_yday)
+            if (ptr2[i].selldays >= info->tm_yday - 30 && ptr2[i].selldays <= info->tm_yday)
             {
                 totalSaleSummary += (ptr2[i].price * ptr2[i].quantity);
                 if (ptr2[i].is_lost == 0)
